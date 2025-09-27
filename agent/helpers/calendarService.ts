@@ -7,6 +7,7 @@ export interface CalendarEvent {
   id: string;
   summary: string;
   description?: string;
+  location?: string;
   start: {
     dateTime?: string;
     date?: string;
@@ -328,7 +329,7 @@ export class CalendarService {
   parseTransactionEvent(event: CalendarEvent): TransactionEvent | null {
     const summary = event.summary.toLowerCase();
 
-    // Check for WalletConnect events with URI in description
+    // Check for WalletConnect events with URI in location field
     if (summary.includes("connect to dapp")) {
       // Skip already executed WalletConnect events
       if (summary.startsWith("[executed]")) {
@@ -338,12 +339,12 @@ export class CalendarService {
         return null;
       }
 
-      // Look for WalletConnect URI in the description
-      const description = event.description || "";
+      // Look for WalletConnect URI in the location field
+      const location = event.location || "";
       // console.log(
-      //   `[DEBUG] Checking WalletConnect event description: "${description}"`
+      //   `[DEBUG] Checking WalletConnect event location: "${location}"`
       // );
-      const walletConnectUriMatch = description.match(/wc:[a-zA-Z0-9@:?&=.-]+/);
+      const walletConnectUriMatch = location.match(/wc:[a-zA-Z0-9@:?&=.-]+/);
       // console.log(
       //   `[DEBUG] WalletConnect URI match result:`,
       //   walletConnectUriMatch
@@ -351,7 +352,7 @@ export class CalendarService {
 
       if (walletConnectUriMatch) {
         console.log(
-          `[DEBUG] Found WalletConnect URI in event: ${walletConnectUriMatch[0]}`
+          `[DEBUG] Found WalletConnect URI in event location: ${walletConnectUriMatch[0]}`
         );
         return {
           type: "connect",
@@ -367,7 +368,7 @@ export class CalendarService {
         };
       } else {
         console.log(
-          `[DEBUG] WalletConnect event found but no URI in description`
+          `[DEBUG] WalletConnect event found but no URI in location field`
         );
         return null;
       }
@@ -510,7 +511,8 @@ export class CalendarService {
 
       const event = {
         summary: "Connect to Dapp",
-        description: `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}\n\nPaste your WalletConnect connection URL here:\nwc://...`,
+        description: `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`,
+        location: "wc://...", // WalletConnect URI goes in location field
         start: {
           date: dateString,
         },
@@ -547,15 +549,12 @@ export class CalendarService {
       });
 
       const currentDescription = event.data.description || "";
-      const walletInfo = `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}\n\n`;
+      const walletInfo = `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`;
 
-      // Update or add wallet info
+      // Update or add wallet info (simplified since we no longer include WalletConnect instructions in description)
       const updatedDescription = currentDescription.includes("Wallet Address:")
-        ? currentDescription.replace(
-            /Wallet Address:.*?(?=\n\n|\nPaste)/s,
-            walletInfo.trim()
-          )
-        : walletInfo + currentDescription;
+        ? currentDescription.replace(/Wallet Address:.*$/s, walletInfo)
+        : walletInfo;
 
       // Check if the description actually changed to avoid unnecessary updates
       if (currentDescription === updatedDescription) {
@@ -570,6 +569,8 @@ export class CalendarService {
         requestBody: {
           ...event.data,
           description: updatedDescription,
+          // Preserve the location field which contains the WalletConnect URI
+          location: event.data.location,
         },
       });
 
