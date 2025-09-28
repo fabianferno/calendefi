@@ -107,11 +107,39 @@ export const POLYGON_CONFIG: ChainConfig = {
   },
 };
 
+// Avalanche Fuji Testnet Configuration
+export const AVALANCHE_FUJI_CONFIG: ChainConfig = {
+  chainId: 43113,
+  name: "Avalanche Fuji Testnet",
+  currency: "AVAX",
+  explorerUrl: "https://testnet.snowtrace.io",
+  rpcUrl: "https://api.avax-test.network/ext/bc/C/rpc",
+  nativeCurrency: {
+    name: "Avalanche",
+    symbol: "AVAX",
+    decimals: 18,
+  },
+  blockExplorerUrls: ["https://testnet.snowtrace.io"],
+  dexConfig: {
+    name: "Uniswap V3",
+    routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+    factoryAddress: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+    quoterAddress: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+  },
+  tokens: {
+    WAVAX: "0xd00ae08403B9bbb9124bB305C09058E32C39A48c", // Wrapped AVAX
+    USDC: "0x5425890298aed601595a70AB815c96711a31Bc65", // USDC on Fuji
+    USDT: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", // USDT on Fuji
+    DAI: "0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b", // DAI on Fuji
+  },
+};
+
 // Chain registry for easy switching
 export const CHAIN_REGISTRY: { [key: string]: ChainConfig } = {
   sepolia: SEPOLIA_CONFIG,
   mainnet: MAINNET_CONFIG,
   polygon: POLYGON_CONFIG,
+  "avalanche-fuji": AVALANCHE_FUJI_CONFIG,
 };
 
 // Get chain configuration by name or chain ID
