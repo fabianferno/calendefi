@@ -135,12 +135,40 @@ export const AVALANCHE_FUJI_CONFIG: ChainConfig = {
   },
 };
 
+// Rootstock Testnet Configuration
+export const ROOTSTOCK_TESTNET_CONFIG: ChainConfig = {
+  chainId: 31,
+  name: "Rootstock Testnet",
+  currency: "tRBTC",
+  explorerUrl: "https://explorer.testnet.rootstock.io",
+  rpcUrl: "https://public-node.testnet.rsk.co",
+  nativeCurrency: {
+    name: "Rootstock Bitcoin",
+    symbol: "tRBTC",
+    decimals: 18,
+  },
+  blockExplorerUrls: ["https://explorer.testnet.rootstock.io"],
+  dexConfig: {
+    name: "Uniswap V3",
+    routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Uniswap V3 Router on Rootstock Testnet
+    factoryAddress: "0x1F98431c8aD98523631AE4a59f267346ea31F984", // Uniswap V3 Factory on Rootstock Testnet
+    quoterAddress: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6", // Uniswap V3 Quoter on Rootstock Testnet
+  },
+  tokens: {
+    WRBTC: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // Wrapped RBTC on Rootstock Testnet
+    USDC: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // USDC on Rootstock Testnet (placeholder)
+    USDT: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // USDT on Rootstock Testnet (placeholder)
+    DAI: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // DAI on Rootstock Testnet (placeholder)
+  },
+};
+
 // Chain registry for easy switching
 export const CHAIN_REGISTRY: { [key: string]: ChainConfig } = {
   sepolia: SEPOLIA_CONFIG,
   mainnet: MAINNET_CONFIG,
   polygon: POLYGON_CONFIG,
   "avalanche-fuji": AVALANCHE_FUJI_CONFIG,
+  "rootstock-testnet": ROOTSTOCK_TESTNET_CONFIG,
 };
 
 // Get chain configuration by name or chain ID

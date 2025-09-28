@@ -961,13 +961,22 @@ app.post("/onboard/:calendarId", async (req, res) => {
     // Attempt to create a unique subname for this calendar (non-blocking)
     let subnameResult = null;
     try {
-      console.log(`🏷️ Attempting to create subname for onboarded calendar: ${calendarId}`);
-      subnameResult = await nameStoneService.createSubnameWithRetry(calendarId, 3);
-      
+      console.log(
+        `🏷️ Attempting to create subname for onboarded calendar: ${calendarId}`
+      );
+      subnameResult = await nameStoneService.createSubnameWithRetry(
+        calendarId,
+        3
+      );
+
       if (subnameResult.success) {
-        console.log(`✅ Subname created for onboarded calendar: ${subnameResult.subname}`);
+        console.log(
+          `✅ Subname created for onboarded calendar: ${subnameResult.subname}`
+        );
       } else {
-        console.warn(`⚠️ Subname creation failed for onboarded calendar: ${subnameResult.message}`);
+        console.warn(
+          `⚠️ Subname creation failed for onboarded calendar: ${subnameResult.message}`
+        );
       }
     } catch (error) {
       console.warn(`⚠️ Subname creation error for onboarded calendar:`, error);
@@ -1012,7 +1021,7 @@ app.post("/onboard/:calendarId", async (req, res) => {
         calendarId,
         walletInfo,
         subname: subnameResult?.success ? subnameResult.subname : null,
-        subnameStatus: subnameResult?.success ? 'created' : 'failed',
+        subnameStatus: subnameResult?.success ? "created" : "failed",
         agentStarted: !calendarAgent ? false : true,
       },
     });
@@ -1118,13 +1127,22 @@ app.post("/switch-calendar/:calendarId", async (req, res) => {
     // Attempt to create a unique subname for this calendar (non-blocking)
     let subnameResult = null;
     try {
-      console.log(`🏷️ Attempting to create subname for switched calendar: ${calendarId}`);
-      subnameResult = await nameStoneService.createSubnameWithRetry(calendarId, 3);
-      
+      console.log(
+        `🏷️ Attempting to create subname for switched calendar: ${calendarId}`
+      );
+      subnameResult = await nameStoneService.createSubnameWithRetry(
+        calendarId,
+        3
+      );
+
       if (subnameResult.success) {
-        console.log(`✅ Subname created for switched calendar: ${subnameResult.subname}`);
+        console.log(
+          `✅ Subname created for switched calendar: ${subnameResult.subname}`
+        );
       } else {
-        console.warn(`⚠️ Subname creation failed for switched calendar: ${subnameResult.message}`);
+        console.warn(
+          `⚠️ Subname creation failed for switched calendar: ${subnameResult.message}`
+        );
       }
     } catch (error) {
       console.warn(`⚠️ Subname creation error for switched calendar:`, error);
@@ -1137,7 +1155,7 @@ app.post("/switch-calendar/:calendarId", async (req, res) => {
         calendarId,
         walletInfo,
         subname: subnameResult?.success ? subnameResult.subname : null,
-        subnameStatus: subnameResult?.success ? 'created' : 'failed',
+        subnameStatus: subnameResult?.success ? "created" : "failed",
       },
     });
   } catch (error) {
