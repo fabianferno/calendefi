@@ -53,7 +53,7 @@ export default function Home() {
         {
             icon: <Zap className="h-6 w-6" />,
             title: "Token Swaps",
-            description: "Swap tokens directly from your calendar. Support for ALGO, USDC, USDT, YLDY, and OPUL."
+            description: "Swap tokens directly from your calendar. Support for ETH, USDC, USDT, YLDY, and OPUL."
         },
         {
             icon: <Users className="h-6 w-6" />,
@@ -91,10 +91,10 @@ export default function Home() {
     ]
 
     const calendarEvents = [
-        { time: "9:00 AM", title: "Send 5 ALGO to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY", type: "transaction" },
-        { time: "2:00 PM", title: "Swap 10 USDC to ALGO", type: "swap" },
+        { time: "9:00 AM", title: "Send 5 ETH to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY", type: "transaction" },
+        { time: "2:00 PM", title: "Swap 10 USDC to ETH", type: "swap" },
         { time: "4:00 PM", title: "Connect to Dapp", type: "walletconnect" },
-        { time: "6:00 PM", title: "Send 2 ALGO to Team Wallet", type: "transaction", attendees: 3 }
+        { time: "6:00 PM", title: "Send 2 ETH to Team Wallet", type: "transaction", attendees: 3 }
     ]
 
     return (
@@ -112,7 +112,7 @@ export default function Home() {
                                 className="w-8 h-8"
                             />
                             <span className="text-xl font-bold text-black">
-                                CalendeFi
+                                calendefi
                             </span>
                         </div>
                         <div className="hidden md:flex items-center space-x-8">
@@ -134,10 +134,7 @@ export default function Home() {
                         <div className="space-y-8">
                             <div className="space-y-4">
                                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                                    Every Calendar Event is a{' '}
-                                    <span className="text-black">
-                                        Transaction
-                                    </span>
+                                    Your Calendar is Now a <span className='font-black'>Wallet</span>
                                 </h1>
                                 <p className="text-xl text-gray-600 leading-relaxed">
                                     With CalendeFi, every calendar event is a transaction — stake, swap, or pay — scheduled in time.
@@ -203,7 +200,7 @@ export default function Home() {
                                                 {isCurrentMonth ? day : ''}
                                                 {hasEvent && (
                                                     <div className="calendar-event text-xs">
-                                                        {day === 9 && 'Send 5 ALGO'}
+                                                        {day === 9 && 'Send 5 ETH'}
                                                         {day === 15 && 'Swap 10 USDC'}
                                                         {day === 20 && 'Connect Dapp'}
                                                         {day === 25 && 'Team Payment'}
@@ -332,7 +329,7 @@ export default function Home() {
                                     </p>
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <p className="text-sm text-gray-700 font-mono">
-                                            Event Title: "Send 5 ALGO to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY"<br />
+                                            Event Title: "Send 5 ETH to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY"<br />
                                             Time: When you want the transaction to execute<br />
                                             Attendees: Optional - for group approval
                                         </p>

@@ -439,7 +439,7 @@ app.post("/test-walletconnect/:calendarId", async (req, res) => {
   }
 });
 
-// Test Send ALGO transaction
+// Test Send transaction
 app.post("/test-send/:calendarId", async (req, res) => {
   try {
     const { calendarId } = req.params;

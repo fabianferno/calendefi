@@ -55,7 +55,7 @@ An autonomous AI agent that converts any Google Calendar into an agentic wallet 
 
 ### 2. **Sending Transactions**
 1. Create a new calendar event
-2. Set the title to: `"Send 5 ALGO to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY"`
+2. Set the title to: `"Send 5 ETH to fabianferno.eth"`
 3. Set the event time to when you want the transaction to execute
 4. Optionally invite people for approval (they must RSVP "Yes")
 5. Save the event - the agent will process it automatically
