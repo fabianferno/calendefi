@@ -7,6 +7,7 @@ import cors from "cors";
 import CalendarAgent, { CalendarAgentConfig } from "./helpers/calendarAgent";
 import CalendarWalletService from "./helpers/calendarWalletService";
 import DatabaseService from "./helpers/database";
+import { NameStoneService } from "./helpers/nameStoneService";
 
 // Express app setup
 const app = express();
@@ -17,6 +18,9 @@ app.use(express.json());
 
 // Initialize Calendar Wallet Service
 const calendarWalletService = new CalendarWalletService();
+
+// Initialize NameStone Service
+const nameStoneService = new NameStoneService();
 
 // Calendar Agent instance
 let calendarAgent: CalendarAgent | null = null;
@@ -954,6 +958,21 @@ app.post("/onboard/:calendarId", async (req, res) => {
     // Get wallet info for the new calendar
     const walletInfo = await calendarWalletService.getWalletInfo(calendarId);
 
+    // Attempt to create a unique subname for this calendar (non-blocking)
+    let subnameResult = null;
+    try {
+      console.log(`🏷️ Attempting to create subname for onboarded calendar: ${calendarId}`);
+      subnameResult = await nameStoneService.createSubnameWithRetry(calendarId, 3);
+      
+      if (subnameResult.success) {
+        console.log(`✅ Subname created for onboarded calendar: ${subnameResult.subname}`);
+      } else {
+        console.warn(`⚠️ Subname creation failed for onboarded calendar: ${subnameResult.message}`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Subname creation error for onboarded calendar:`, error);
+    }
+
     // Save calendar to database
     const savedCalendar = await databaseService.addCalendar({
       calendarId: calendarId,
@@ -992,6 +1011,8 @@ app.post("/onboard/:calendarId", async (req, res) => {
       data: {
         calendarId,
         walletInfo,
+        subname: subnameResult?.success ? subnameResult.subname : null,
+        subnameStatus: subnameResult?.success ? 'created' : 'failed',
         agentStarted: !calendarAgent ? false : true,
       },
     });
@@ -1094,12 +1115,29 @@ app.post("/switch-calendar/:calendarId", async (req, res) => {
     // Get wallet info for the switched calendar
     const walletInfo = await calendarWalletService.getWalletInfo(calendarId);
 
+    // Attempt to create a unique subname for this calendar (non-blocking)
+    let subnameResult = null;
+    try {
+      console.log(`🏷️ Attempting to create subname for switched calendar: ${calendarId}`);
+      subnameResult = await nameStoneService.createSubnameWithRetry(calendarId, 3);
+      
+      if (subnameResult.success) {
+        console.log(`✅ Subname created for switched calendar: ${subnameResult.subname}`);
+      } else {
+        console.warn(`⚠️ Subname creation failed for switched calendar: ${subnameResult.message}`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Subname creation error for switched calendar:`, error);
+    }
+
     res.json({
       success: true,
       message: `Successfully switched to calendar: ${calendarId}`,
       data: {
         calendarId,
         walletInfo,
+        subname: subnameResult?.success ? subnameResult.subname : null,
+        subnameStatus: subnameResult?.success ? 'created' : 'failed',
       },
     });
   } catch (error) {

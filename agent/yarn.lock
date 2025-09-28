@@ -866,6 +866,11 @@
   resolved "https://registry.yarnpkg.com/@msgpack/msgpack/-/msgpack-3.1.2.tgz#fdd25cc2202297519798bbaf4689152ad9609e19"
   integrity sha512-JEW4DEtBzfe8HvUYecLU9e6+XJnKDlUAIve8FvPzF3Kzs6Xo/KuZkZJsDH0wJXl/qEZbeeE7edxDNY3kMs39hQ==
 
+"@namestone/namestone-sdk@^0.2.15":
+  version "0.2.15"
+  resolved "https://registry.yarnpkg.com/@namestone/namestone-sdk/-/namestone-sdk-0.2.15.tgz#d491b96b2d8b6946e975fb415781e7cd562cce02"
+  integrity sha512-c36h8zycXnvH3ZwyiNIfOySFb8dopfuXI2VlcYy/Ece1klmDRP5RRkMTJZnIWzPtuFxLiy8WKfUGbQSlgcEViA==
+
 "@napi-rs/wasm-runtime@^0.2.11":
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/@napi-rs/wasm-runtime/-/wasm-runtime-0.2.11.tgz#192c1610e1625048089ab4e35bc0649ce478500e"

@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import CalendarWalletService from "./calendarWalletService";
 import CalendarService from "./calendarService";
+import { NameStoneService } from "./nameStoneService";
 
 export interface CalendarAgentConfig {
   calendarId: string;
@@ -11,6 +12,7 @@ export interface CalendarAgentConfig {
 export class CalendarAgent {
   private calendarWalletService: CalendarWalletService;
   private calendarService: CalendarService;
+  private nameStoneService: NameStoneService;
   public config: CalendarAgentConfig; // Make public for access from index.ts
   private isRunning = false;
   private lastSyncTime: Date;
@@ -21,6 +23,7 @@ export class CalendarAgent {
     this.calendarWalletService = new CalendarWalletService(
       this.calendarService
     );
+    this.nameStoneService = new NameStoneService();
     this.lastSyncTime = new Date();
   }
 
@@ -87,6 +90,9 @@ export class CalendarAgent {
       console.log(`Balance: ${walletInfo.balance}`);
       console.log(`Explorer: ${walletInfo.explorerUrl}`);
 
+      // Try to create a unique subname for this calendar
+      await this.attemptSubnameCreation();
+
       // Create WalletConnect event if enabled
       if (this.config.autoCreateWalletConnectEvent) {
         await this.ensureWalletConnectEvent();
@@ -94,6 +100,33 @@ export class CalendarAgent {
     } catch (error) {
       console.error("Error initializing calendar:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Attempt to create a unique subname for the calendar
+   * This is a non-blocking operation - failures won't prevent calendar setup
+   */
+  private async attemptSubnameCreation(): Promise<void> {
+    try {
+      console.log(`🏷️ Attempting to create subname for calendar: ${this.config.calendarId}`);
+      
+      const result = await this.nameStoneService.createSubnameWithRetry(
+        this.config.calendarId,
+        3 // Max 3 retries
+      );
+
+      if (result.success) {
+        console.log(`✅ Subname created successfully: ${result.subname}`);
+        console.log(`📝 ${result.message}`);
+      } else {
+        console.warn(`⚠️ Subname creation failed: ${result.message}`);
+        console.warn(`🔧 Calendar setup will continue without subname`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Subname creation encountered an error:`, error);
+      console.warn(`🔧 Calendar setup will continue without subname`);
+      // Don't throw - this should not block calendar initialization
     }
   }
 

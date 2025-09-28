@@ -10,12 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@namestone/namestone-sdk": "^0.2.15",
     "@openserv-labs/sdk": "latest",
     "@reown/walletkit": "^1.2.6",
+    "@uniswap/sdk-core": "^4.0.7",
+    "@uniswap/v3-sdk": "^3.10.0",
     "@walletconnect/core": "^2.21.3",
     "@walletconnect/utils": "^2.21.3",
-    "@uniswap/v3-sdk": "^3.10.0",
-    "@uniswap/sdk-core": "^4.0.7",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
