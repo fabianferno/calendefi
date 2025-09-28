@@ -487,6 +487,54 @@ app.post("/test-send/:calendarId", async (req, res) => {
   }
 });
 
+// Test Send PYUSD transaction
+app.post("/test-send-pyusd/:calendarId", async (req, res) => {
+  try {
+    const { calendarId } = req.params;
+
+    // Use a valid Ethereum address for testing
+    const validTestAddress = "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"; // Example Ethereum address
+    const amount = "10"; // 10 PYUSD
+
+    // Create a test Send PYUSD event for immediate execution
+    const now = new Date();
+    const event = {
+      summary: `Send ${amount} PYUSD to ${validTestAddress}`,
+      start: {
+        dateTime: now.toISOString(),
+      },
+      end: {
+        dateTime: new Date(now.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour later
+      },
+    };
+
+    const response =
+      await calendarWalletService.calendarService.calendarInstance.events.insert(
+        {
+          calendarId: calendarId,
+          requestBody: event,
+        }
+      );
+
+    console.log(`[TEST] Created test Send PYUSD event: ${event.summary}`);
+
+    res.json({
+      success: true,
+      message: `Test Send PYUSD event created: ${amount} PYUSD to ${validTestAddress}`,
+      data: {
+        eventId: response.data.id,
+        event: event,
+      },
+    });
+  } catch (error) {
+    console.error("Error creating test Send PYUSD event:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
 // Test Swap transaction
 app.post("/test-swap/:calendarId", async (req, res) => {
   try {

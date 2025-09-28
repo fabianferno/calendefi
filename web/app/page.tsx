@@ -189,7 +189,7 @@ export default function Home() {
                                     {Array.from({ length: 35 }, (_, i) => {
                                         const day = i - 6 + 1
                                         const isCurrentMonth = day > 0 && day <= 31
-                                        const hasEvent = [9, 15, 20, 25].includes(day)
+                                        const hasEvent = [9, 15, 20, 25, 28].includes(day)
 
                                         return (
                                             <div
@@ -204,6 +204,7 @@ export default function Home() {
                                                         {day === 15 && 'Swap 10 USDC'}
                                                         {day === 20 && 'Connect Dapp'}
                                                         {day === 25 && 'Team Payment'}
+                                                        {day === 28 && 'Send 10 PYUSD'}
                                                     </div>
                                                 )}
                                             </div>

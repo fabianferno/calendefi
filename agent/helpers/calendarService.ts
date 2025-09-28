@@ -391,9 +391,9 @@ export class CalendarService {
     console.log(`[DEBUG] Event start time:`, event.start);
     console.log(`[DEBUG] Event attendees:`, event.attendees);
 
-    // Parse "Send X ETH/USDC/USDT to ADDRESS" format
+    // Parse "Send X ETH/USDC/USDT/PYUSD to ADDRESS" format
     const sendMatch = summary.match(
-      /send\s+([\d.]+)\s+(eth|usdc|usdt|dai)\s+to\s+(0x[a-fA-F0-9]{40})/i
+      /send\s+([\d.]+)\s+(eth|usdc|usdt|dai|pyusd)\s+to\s+(0x[a-fA-F0-9]{40})/i
     );
 
     console.log(`[DEBUG] Send regex match result:`, sendMatch);
@@ -495,7 +495,8 @@ export class CalendarService {
   async createWalletConnectEvent(
     calendarId: string,
     walletAddress: string,
-    walletBalance: string
+    walletBalance: string,
+    tokenBalances: any[] = []
   ): Promise<CalendarEvent> {
     try {
       // Get current date in local timezone
@@ -509,9 +510,20 @@ export class CalendarService {
         `[CALENDAR] Creating WalletConnect event for date: ${dateString}`
       );
 
+      // Build description with ETH balance
+      let description = `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`;
+
+      // Add ERC20 token balances if any
+      if (tokenBalances && tokenBalances.length > 0) {
+        description += "\n\nERC20 Token Balances:";
+        for (const token of tokenBalances) {
+          description += `\n• ${token.balance}`;
+        }
+      }
+
       const event = {
         summary: "Connect to Dapp",
-        description: `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`,
+        description: description,
         location: "wc://...", // WalletConnect URI goes in location field
         start: {
           date: dateString,
@@ -535,12 +547,13 @@ export class CalendarService {
   }
 
   /**
-   * Update WalletConnect event with current wallet info
+   * Update WalletConnect event with current wallet info including ERC20 token balances
    */
   async updateWalletConnectEvent(
     eventId: string,
     walletAddress: string,
-    walletBalance: string
+    walletBalance: string,
+    tokenBalances: any[] = []
   ): Promise<void> {
     try {
       const event = await this.calendar.events.get({
@@ -549,7 +562,17 @@ export class CalendarService {
       });
 
       const currentDescription = event.data.description || "";
-      const walletInfo = `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`;
+
+      // Build wallet info with ETH balance
+      let walletInfo = `Wallet Address: ${walletAddress}\nWallet Balance: ${walletBalance}`;
+
+      // Add ERC20 token balances if any
+      if (tokenBalances && tokenBalances.length > 0) {
+        walletInfo += "\n\nERC20 Token Balances:";
+        for (const token of tokenBalances) {
+          walletInfo += `\n• ${token.balance}`;
+        }
+      }
 
       // Update or add wallet info (simplified since we no longer include WalletConnect instructions in description)
       const updatedDescription = currentDescription.includes("Wallet Address:")
@@ -561,7 +584,9 @@ export class CalendarService {
         return;
       }
 
-      console.log(`[CALENDAR] Updating WalletConnect event ${eventId}`);
+      console.log(
+        `[CALENDAR] Updating WalletConnect event ${eventId} with token balances`
+      );
 
       await this.calendar.events.update({
         calendarId: this.calendarId,

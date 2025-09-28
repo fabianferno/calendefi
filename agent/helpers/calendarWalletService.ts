@@ -1,13 +1,24 @@
 import { ethers } from "ethers";
 import { CHAIN_CONFIG } from "./chainConfig";
+import { SUPPORTED_TOKENS } from "./consts";
 import CalendarService, { TransactionEvent } from "./calendarService";
 import SwapService from "./swapService";
+
+export interface TokenBalance {
+  symbol: string;
+  name: string;
+  address: string;
+  balance: string;
+  balanceWei: string;
+  decimals: number;
+}
 
 export interface WalletInfo {
   address: string;
   balance: string;
   balanceWei: string; // Changed from bigint to string for JSON serialization
   explorerUrl: string;
+  tokenBalances: TokenBalance[]; // ERC20 token balances
 }
 
 export interface TransactionResult {
@@ -48,13 +59,74 @@ export class CalendarWalletService {
   }
 
   /**
-   * Get wallet information including balance
+   * Fetch ERC20 token balances for a wallet address
+   */
+  async fetchTokenBalances(address: string): Promise<TokenBalance[]> {
+    const tokenBalances: TokenBalance[] = [];
+
+    // ERC20 ABI for balanceOf and decimals
+    const erc20Abi = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function decimals() view returns (uint8)",
+      "function symbol() view returns (string)",
+      "function name() view returns (string)",
+    ];
+
+    for (const [symbol, tokenConfig] of Object.entries(SUPPORTED_TOKENS)) {
+      try {
+        const contract = new ethers.Contract(
+          tokenConfig.address,
+          erc20Abi,
+          this.provider
+        );
+
+        // Fetch balance and token info in parallel
+        const [balanceWei, decimals, tokenSymbol, tokenName] =
+          await Promise.all([
+            contract.balanceOf(address),
+            contract.decimals(),
+            contract.symbol(),
+            contract.name(),
+          ]);
+
+        // Format balance based on token decimals
+        const balance = ethers.formatUnits(balanceWei, decimals);
+
+        // Only include tokens with non-zero balance
+        if (balanceWei > 0n) {
+          tokenBalances.push({
+            symbol: tokenSymbol,
+            name: tokenName,
+            address: tokenConfig.address,
+            balance: `${balance} ${tokenSymbol}`,
+            balanceWei: balanceWei.toString(),
+            decimals: Number(decimals),
+          });
+        }
+      } catch (error) {
+        console.warn(
+          `Error fetching balance for ${symbol} (${tokenConfig.address}):`,
+          error
+        );
+        // Continue with other tokens even if one fails
+      }
+    }
+
+    return tokenBalances;
+  }
+
+  /**
+   * Get wallet information including balance and ERC20 token balances
    */
   async getWalletInfo(calendarId: string): Promise<WalletInfo> {
     const wallet = this.getWalletForCalendar(calendarId);
 
     try {
-      const balanceWei = await this.provider.getBalance(wallet.address);
+      const [balanceWei, tokenBalances] = await Promise.all([
+        this.provider.getBalance(wallet.address),
+        this.fetchTokenBalances(wallet.address),
+      ]);
+
       const balance = ethers.formatEther(balanceWei);
 
       return {
@@ -62,6 +134,7 @@ export class CalendarWalletService {
         balance: `${balance} ${CHAIN_CONFIG.currency}`,
         balanceWei: balanceWei.toString(),
         explorerUrl: `${CHAIN_CONFIG.explorerUrl}/address/${wallet.address}`,
+        tokenBalances,
       };
     } catch (error) {
       console.error("Error fetching wallet info:", error);
@@ -160,12 +233,11 @@ export class CalendarWalletService {
         throw new Error("Invalid amount");
       }
 
-      // Convert to wei
-      const amountWei = ethers.parseEther(amount.toString());
-
       // Check if it's a native token (ETH) or ERC-20 token
       if (transactionEvent.token?.toUpperCase() === "ETH") {
-        // Native ETH transfer
+        // Native ETH transfer - use 18 decimals
+        const amountWei = ethers.parseEther(amount.toString());
+
         const tx = await connectedWallet.sendTransaction({
           to: transactionEvent.toAddress!,
           value: amountWei,
@@ -180,12 +252,27 @@ export class CalendarWalletService {
           explorerUrl: `${CHAIN_CONFIG.explorerUrl}/tx/${txHash}`,
         };
       } else {
-        // ERC-20 token transfer
+        // ERC-20 token transfer - use appropriate decimals
         const tokenAddress =
           CHAIN_CONFIG.tokens[transactionEvent.token!.toUpperCase()];
         if (!tokenAddress) {
           throw new Error(`Token ${transactionEvent.token} not supported`);
         }
+
+        // Get token decimals from SUPPORTED_TOKENS config
+        const tokenSymbol = transactionEvent.token!.toUpperCase();
+        const tokenConfig =
+          SUPPORTED_TOKENS[tokenSymbol as keyof typeof SUPPORTED_TOKENS];
+
+        if (!tokenConfig) {
+          throw new Error(`Token configuration not found for ${tokenSymbol}`);
+        }
+
+        // Convert amount using correct decimals
+        const amountWei = ethers.parseUnits(
+          amount.toString(),
+          tokenConfig.decimals
+        );
 
         // ERC-20 transfer ABI
         const erc20Abi = [
@@ -446,7 +533,7 @@ export class CalendarWalletService {
   }
 
   /**
-   * Update WalletConnect events with current wallet info
+   * Update WalletConnect events with current wallet info including ERC20 token balances
    */
   async updateWalletConnectEvents(calendarId: string): Promise<void> {
     try {
@@ -458,7 +545,8 @@ export class CalendarWalletService {
           await this.calendarService.updateWalletConnectEvent(
             event.id,
             walletInfo.address,
-            walletInfo.balance
+            walletInfo.balance,
+            walletInfo.tokenBalances
           );
         }
       }
@@ -476,7 +564,8 @@ export class CalendarWalletService {
       await this.calendarService.createWalletConnectEvent(
         calendarId,
         walletInfo.address,
-        walletInfo.balance
+        walletInfo.balance,
+        walletInfo.tokenBalances
       );
 
       // Store the initial balance

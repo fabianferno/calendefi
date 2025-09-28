@@ -48,6 +48,7 @@ export const SEPOLIA_CONFIG: ChainConfig = {
     USDC: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // USDC on Sepolia
     USDT: "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06", // USDT on Sepolia
     DAI: "0xFF34B3d4Aee8ddCd6F9AFFFB6Fe49bD371b8a357", // DAI on Sepolia
+    PYUSD: "0xcac524bca292aaade2df8a05cc58f0a65b1b3bb9", // PYUSD on Sepolia
   },
 };
 
