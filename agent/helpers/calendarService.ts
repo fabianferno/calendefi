@@ -391,9 +391,9 @@ export class CalendarService {
     console.log(`[DEBUG] Event start time:`, event.start);
     console.log(`[DEBUG] Event attendees:`, event.attendees);
 
-    // Parse "Send X ETH/USDC/USDT/PYUSD to ADDRESS" format
+    // Parse "Send X ETH/USDC/USDT/PYUSD/tRBTC to ADDRESS or ENS" format
     const sendMatch = summary.match(
-      /send\s+([\d.]+)\s+(eth|usdc|usdt|dai|pyusd)\s+to\s+(0x[a-fA-F0-9]{40})/i
+      /send\s+([\d.]+)\s+(eth|usdc|usdt|dai|pyusd|trbtc)\s+to\s+([a-zA-Z0-9.-]+\.eth|0x[a-fA-F0-9]{40})/i
     );
 
     console.log(`[DEBUG] Send regex match result:`, sendMatch);
@@ -409,7 +409,11 @@ export class CalendarService {
       const originalAddress = addressMatch ? addressMatch[1] : sendMatch[3];
 
       console.log(
-        `[DEBUG] Successfully parsed send transaction: ${sendMatch[1]} ${sendMatch[2]} to ${originalAddress}`
+        `[DEBUG] Successfully parsed send transaction: ${sendMatch[1]} ${
+          sendMatch[2]
+        } to ${originalAddress} (${
+          originalAddress.includes(".eth") ? "ENS name" : "address"
+        })`
       );
       console.log(`[DEBUG] Scheduled time: ${scheduledTime.toISOString()}`);
       console.log(`[DEBUG] Current time: ${new Date().toISOString()}`);

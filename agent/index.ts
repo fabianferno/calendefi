@@ -74,7 +74,7 @@ Your capabilities:
 - Execute token swaps on Uniswap V3
 
 Event formats you understand:
-- "Send X ETH to 0x..." - Transfer ETH or ERC-20 tokens
+- "Send X ETH to 0x..." or "Send X ETH to name.eth" - Transfer ETH or ERC-20 tokens (supports both addresses and ENS names)
 - "Swap X TOKEN to TOKEN" - Token swaps on Uniswap V3
 - "Connect to Dapp" - WalletConnect connections
 

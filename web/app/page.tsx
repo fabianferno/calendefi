@@ -11,6 +11,9 @@ import Image from 'next/image'
 export default function Home() {
     const [copied, setCopied] = useState(false)
     const [currentStep, setCurrentStep] = useState(1)
+    const [calendarId, setCalendarId] = useState('')
+    const [isOnboarding, setIsOnboarding] = useState(false)
+    const [onboardedCalendars, setOnboardedCalendars] = useState<string[]>([])
     const { toast } = useToast()
 
     const serviceAccountEmail = "agents@calendefi.iam.gserviceaccount.com"
@@ -31,6 +34,52 @@ export default function Home() {
                 description: "Failed to copy to clipboard",
                 variant: "destructive",
             })
+        }
+    }
+
+    const onboardCalendar = async () => {
+        if (!calendarId.trim()) {
+            toast({
+                title: "Error",
+                description: "Please enter a calendar ID",
+                variant: "destructive",
+            })
+            return
+        }
+
+        setIsOnboarding(true)
+        try {
+            const response = await fetch(`/api/onboard/${encodeURIComponent(calendarId.trim())}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            if (response.ok) {
+                setOnboardedCalendars(prev => [...prev, calendarId.trim()])
+                setCalendarId('')
+                toast({
+                    title: "Success!",
+                    description: "Calendar onboarded successfully",
+                })
+            } else {
+                const errorData = await response.json()
+                toast({
+                    title: "Error",
+                    description: errorData.message || "Failed to onboard calendar",
+                    variant: "destructive",
+                })
+            }
+        } catch (err) {
+            console.error('Failed to onboard calendar: ', err)
+            toast({
+                title: "Error",
+                description: "Failed to onboard calendar. Please try again.",
+                variant: "destructive",
+            })
+        } finally {
+            setIsOnboarding(false)
         }
     }
 
@@ -98,9 +147,9 @@ export default function Home() {
     ]
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen">
             {/* Navigation */}
-            <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+            <nav className="border-b bg-yellow-300/50 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-3">
@@ -170,7 +219,7 @@ export default function Home() {
 
                         {/* Calendar Mockup */}
                         <div className="relative">
-                            <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200">
+                            <div className="bg-yellow-100 rounded-2xl shadow-2xl p-6 border border-gray-200">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-lg font-semibold text-gray-900">December 2024</h3>
                                     <div className="flex space-x-2">
@@ -194,7 +243,7 @@ export default function Home() {
                                         return (
                                             <div
                                                 key={i}
-                                                className={`calendar-day ${isCurrentMonth ? 'text-gray-900' : 'text-gray-300'
+                                                className={`calendar-day flex-col gap-2 ${isCurrentMonth ? 'text-gray-900' : 'text-gray-300'
                                                     } ${day === 15 ? 'bg-gray-100 text-black font-semibold' : ''}`}
                                             >
                                                 {isCurrentMonth ? day : ''}
@@ -214,10 +263,10 @@ export default function Home() {
                             </div>
 
                             {/* Floating elements */}
-                            <div className="absolute -top-4 -right-4 bg-black text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                            <div className="absolute -top-5 -right-4 bg-black text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
                                 Transaction Executed ✓
                             </div>
-                            <div className="absolute -bottom-4 -left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
+                            <div className="absolute -bottom-1 bg-gray-800 text-xs text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg">
                                 Wallet Connected
                             </div>
                         </div>
@@ -239,7 +288,7 @@ export default function Home() {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {features.map((feature, index) => (
-                            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                            <Card key={index} className="bg-yellow-100 border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
                                 <CardHeader>
                                     <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center text-white mb-4">
                                         {feature.icon}
@@ -258,7 +307,7 @@ export default function Home() {
             </section>
 
             {/* Onboarding Section */}
-            <section id="onboarding" className="py-20 bg-white">
+            <section id="onboarding" className="py-20 bg-yellow-100">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -303,17 +352,48 @@ export default function Home() {
                                     2
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Invite to Your Calendar</h3>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Onboard Your Calendar</h3>
                                     <p className="text-gray-600 mb-4">
-                                        In Google Calendar, create a new calendar and invite the service account email as a collaborator.
+                                        After inviting the service account to your calendar, enter your calendar ID below to onboard it with CalendeFi.
                                     </p>
-                                    <div className="bg-gray-50 rounded-lg p-4">
-                                        <p className="text-sm text-gray-700 font-mono">
-                                            1. Open Google Calendar<br />
-                                            2. Click "+" → "Create new calendar"<br />
-                                            3. Add the service account email as a collaborator<br />
-                                            4. Grant "Make changes to events" permission
-                                        </p>
+                                    <div className="space-y-4">
+                                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                                            <p className="text-sm text-gray-700 font-mono">
+                                                1. Open Google Calendar<br />
+                                                2. Click "+" → "Create new calendar"<br />
+                                                3. Add the service account email as a collaborator<br />
+                                                4. Grant "Make changes to events" permission<br />
+                                                5. Copy your calendar ID from the calendar settings
+                                            </p>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <Input
+                                                value={calendarId}
+                                                onChange={(e) => setCalendarId(e.target.value)}
+                                                placeholder="Enter your calendar ID (e.g., abc123@group.calendar.google.com)"
+                                                className="font-mono text-sm"
+                                                disabled={isOnboarding}
+                                            />
+                                            <Button
+                                                onClick={onboardCalendar}
+                                                disabled={isOnboarding || !calendarId.trim()}
+                                                className="px-6"
+                                            >
+                                                {isOnboarding ? "Onboarding..." : "Onboard"}
+                                            </Button>
+                                        </div>
+                                        {onboardedCalendars.length > 0 && (
+                                            <div className="mt-4">
+                                                <p className="text-sm text-green-600 font-medium mb-2">✓ Onboarded Calendars:</p>
+                                                <div className="space-y-1">
+                                                    {onboardedCalendars.map((id, index) => (
+                                                        <div key={index} className="text-sm text-gray-600 font-mono bg-green-50 p-2 rounded">
+                                                            {id}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -330,7 +410,7 @@ export default function Home() {
                                     </p>
                                     <div className="bg-gray-50 rounded-lg p-4">
                                         <p className="text-sm text-gray-700 font-mono">
-                                            Event Title: "Send 5 ETH to CRIBUTZOZLY2PBQHYJYPPFIFE2QDMDHZG4CTMB3DFNIDU4DA34WIZ6DLVY"<br />
+                                            Event Title: "Send 5 PYUSD to fabianferno.eth"<br />
                                             Time: When you want the transaction to execute<br />
                                             Attendees: Optional - for group approval
                                         </p>
@@ -388,26 +468,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 bg-black">
-                <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                        Ready to Transform Your Calendar?
-                    </h2>
-                    <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                        Join thousands of users who are already scheduling their financial future with CalendeFi.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button size="lg" className="bg-white text-black hover:bg-gray-100 text-lg px-8 py-4">
-                            Get Started Free
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
-                        <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black text-lg px-8 py-4">
-                            View Documentation
-                        </Button>
-                    </div>
-                </div>
-            </section>
 
             {/* Footer */}
             <footer className="bg-gray-900 text-white py-12">

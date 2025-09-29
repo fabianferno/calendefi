@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { CHAIN_CONFIG } from "./chainConfig";
+import { CHAIN_CONFIG, MAINNET_CONFIG } from "./chainConfig";
 import { SUPPORTED_TOKENS } from "./consts";
 import CalendarService, { TransactionEvent } from "./calendarService";
 import SwapService from "./swapService";
@@ -32,6 +32,7 @@ export interface TransactionResult {
 export class CalendarWalletService {
   public calendarService: CalendarService; // Make public for access from index.ts
   private provider: ethers.JsonRpcProvider;
+  private mainnetProvider: ethers.JsonRpcProvider;
   private walletCache = new Map<string, ethers.Wallet>();
   private walletKit: any = null;
   private walletConnectSessions = new Map<string, any>();
@@ -41,6 +42,7 @@ export class CalendarWalletService {
   constructor(calendarService?: CalendarService) {
     this.calendarService = calendarService || new CalendarService();
     this.provider = new ethers.JsonRpcProvider(CHAIN_CONFIG.rpcUrl);
+    this.mainnetProvider = new ethers.JsonRpcProvider(MAINNET_CONFIG.rpcUrl);
     this.swapService = new SwapService(this.provider);
   }
 
@@ -74,11 +76,23 @@ export class CalendarWalletService {
 
     for (const [symbol, tokenConfig] of Object.entries(SUPPORTED_TOKENS)) {
       try {
+        // Skip placeholder/zero addresses
+        if (tokenConfig.address === "0x0000000000000000000000000000000000000000") {
+          continue;
+        }
+
         const contract = new ethers.Contract(
           tokenConfig.address,
           erc20Abi,
           this.provider
         );
+
+        // Check if contract exists first
+        const code = await this.provider.getCode(tokenConfig.address);
+        if (code === "0x") {
+          console.log(`Token ${symbol} does not exist at ${tokenConfig.address}, skipping`);
+          continue;
+        }
 
         // Fetch balance and token info in parallel
         const [balanceWei, decimals, tokenSymbol, tokenName] =
@@ -197,6 +211,39 @@ export class CalendarWalletService {
   }
 
   /**
+   * Resolve address or ENS name to Ethereum address
+   */
+  async resolveAddress(input: string): Promise<string> {
+    try {
+      // Check if it's already a valid Ethereum address
+      if (ethers.isAddress(input)) {
+        console.log(`[DEBUG] Input is already a valid address: ${input}`);
+        return input;
+      }
+
+      // Check if it's an ENS name (ends with .eth)
+      if (input.endsWith(".eth")) {
+        console.log(
+          `[DEBUG] Resolving ENS name: ${input} (using mainnet provider)`
+        );
+        const resolved = await this.mainnetProvider.resolveName(input);
+        if (!resolved) {
+          throw new Error(`ENS name ${input} could not be resolved on mainnet`);
+        }
+        console.log(`[DEBUG] ENS name resolved to: ${resolved}`);
+        return resolved;
+      }
+
+      throw new Error(`Invalid address or ENS name format: ${input}`);
+    } catch (error) {
+      console.error(`[ERROR] Failed to resolve address/ENS: ${input}`, error);
+      throw new Error(
+        `Failed to resolve address or ENS name: ${input}. Error: ${error}`
+      );
+    }
+  }
+
+  /**
    * Execute a send transaction
    */
   async executeSendTransaction(
@@ -213,19 +260,13 @@ export class CalendarWalletService {
         throw new Error("No recipient address provided");
       }
 
-      try {
-        // Validate Ethereum address
-        if (!ethers.isAddress(transactionEvent.toAddress)) {
-          throw new Error("Invalid Ethereum address format");
-        }
-        console.log(
-          `[DEBUG] Address validation passed: ${transactionEvent.toAddress}`
-        );
-      } catch (error) {
-        throw new Error(
-          `Invalid Ethereum address: ${transactionEvent.toAddress}. Error: ${error}`
-        );
-      }
+      // Resolve address or ENS name to Ethereum address
+      const resolvedAddress = await this.resolveAddress(
+        transactionEvent.toAddress
+      );
+      console.log(
+        `[DEBUG] Address/ENS resolved: ${transactionEvent.toAddress} -> ${resolvedAddress}`
+      );
 
       const amount = parseFloat(transactionEvent.amount!);
 
@@ -233,13 +274,13 @@ export class CalendarWalletService {
         throw new Error("Invalid amount");
       }
 
-      // Check if it's a native token (ETH) or ERC-20 token
-      if (transactionEvent.token?.toUpperCase() === "ETH") {
+      // Check if it's a native token (ETH or tRBTC) or ERC-20 token
+      if (transactionEvent.token?.toUpperCase() === "ETH" || transactionEvent.token?.toUpperCase() === "TRBTC") {
         // Native ETH transfer - use 18 decimals
         const amountWei = ethers.parseEther(amount.toString());
 
         const tx = await connectedWallet.sendTransaction({
-          to: transactionEvent.toAddress!,
+          to: resolvedAddress,
           value: amountWei,
         });
 
@@ -274,16 +315,63 @@ export class CalendarWalletService {
           tokenConfig.decimals
         );
 
-        // ERC-20 transfer ABI
+        // Check balance before attempting transfer
         const erc20Abi = [
           "function transfer(address to, uint256 amount) returns (bool)",
+          "function balanceOf(address owner) view returns (uint256)",
+          "function allowance(address owner, address spender) view returns (uint256)",
+          "function approve(address spender, uint256 amount) returns (bool)",
         ];
 
-        const contract = new ethers.Contract(tokenAddress, erc20Abi, wallet);
-        const tx = await contract.transfer(
-          transactionEvent.toAddress!,
-          amountWei
+        const contract = new ethers.Contract(
+          tokenAddress,
+          erc20Abi,
+          connectedWallet
         );
+
+        // First, check if the contract exists and is callable
+        try {
+          console.log(`[DEBUG] Checking if contract exists at ${tokenAddress}`);
+          const code = await this.provider.getCode(tokenAddress);
+          if (code === "0x") {
+            throw new Error(
+              `No contract found at address ${tokenAddress}. Token ${tokenSymbol} may not exist on this network.`
+            );
+          }
+          console.log(`[DEBUG] Contract exists, code length: ${code.length}`);
+        } catch (error) {
+          throw new Error(
+            `Failed to verify contract at ${tokenAddress}: ${error}`
+          );
+        }
+
+        // Check wallet balance
+        const walletBalance = await contract.balanceOf(connectedWallet.address);
+        console.log(
+          `[DEBUG] Wallet balance: ${ethers.formatUnits(
+            walletBalance,
+            tokenConfig.decimals
+          )} ${tokenSymbol}`
+        );
+        console.log(
+          `[DEBUG] Attempting to transfer: ${amount} ${tokenSymbol} (${amountWei} wei)`
+        );
+
+        if (walletBalance < amountWei) {
+          throw new Error(
+            `Insufficient ${tokenSymbol} balance. Required: ${amount} ${tokenSymbol}, Available: ${ethers.formatUnits(
+              walletBalance,
+              tokenConfig.decimals
+            )} ${tokenSymbol}`
+          );
+        }
+
+        // For direct wallet transfers, we use transfer() not transferFrom()
+        // transferFrom() is only needed when transferring on behalf of another address
+        console.log(
+          `[DEBUG] Using direct transfer() method for wallet-to-wallet transfer`
+        );
+        const tx = await contract.transfer(resolvedAddress, amountWei);
         const receipt = await tx.wait();
         const txHash = receipt!.hash;
 

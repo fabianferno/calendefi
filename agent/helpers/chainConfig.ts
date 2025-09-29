@@ -58,9 +58,7 @@ export const MAINNET_CONFIG: ChainConfig = {
   name: "Ethereum Mainnet",
   currency: "ETH",
   explorerUrl: "https://etherscan.io",
-  rpcUrl:
-    process.env.MAINNET_RPC_URL ||
-    "https://mainnet.infura.io/v3/YOUR_INFURA_KEY",
+  rpcUrl: process.env.MAINNET_RPC_URL || "https://eth.llamarpc.com",
   nativeCurrency: {
     name: "Ethereum",
     symbol: "ETH",
@@ -141,7 +139,8 @@ export const ROOTSTOCK_TESTNET_CONFIG: ChainConfig = {
   name: "Rootstock Testnet",
   currency: "tRBTC",
   explorerUrl: "https://explorer.testnet.rootstock.io",
-  rpcUrl: "https://public-node.testnet.rsk.co",
+  rpcUrl:
+    "https://rootstock-testnet.g.alchemy.com/v2/MShQiNPi5VzUekdRsalsGufPl0IkOFqR",
   nativeCurrency: {
     name: "Rootstock Bitcoin",
     symbol: "tRBTC",
@@ -156,9 +155,11 @@ export const ROOTSTOCK_TESTNET_CONFIG: ChainConfig = {
   },
   tokens: {
     WRBTC: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // Wrapped RBTC on Rootstock Testnet
-    USDC: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // USDC on Rootstock Testnet (placeholder)
-    USDT: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // USDT on Rootstock Testnet (placeholder)
-    DAI: "0x09B6Ca5E4496238A1F176aEa6Bb607DB96c2286E", // DAI on Rootstock Testnet (placeholder)
+    // Note: USDC, USDT, DAI tokens may not be available on Rootstock testnet
+    // These are placeholder addresses - actual tokens need to be verified
+    USDC: "0x0000000000000000000000000000000000000000", // Placeholder - no USDC on Rootstock testnet
+    USDT: "0x0000000000000000000000000000000000000000", // Placeholder - no USDT on Rootstock testnet  
+    DAI: "0x0000000000000000000000000000000000000000", // Placeholder - no DAI on Rootstock testnet
   },
 };
 
