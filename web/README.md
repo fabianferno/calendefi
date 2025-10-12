@@ -37,12 +37,20 @@ A beautiful, modern web interface for CalendeFi built with Next.js 14, TypeScrip
    yarn install
    ```
 
-2. **Run the development server**:
+2. **Configure environment variables**:
+   Create a `.env.local` file in the web directory with the following variables:
+   ```bash
+   WAITLIST_APP_ID=your-app-identifier
+   WAITLIST_APP_SECRET=your-64-character-secret-key
+   ```
+   Get these values from [https://www.stateless.cx/](https://www.stateless.cx/)
+
+3. **Run the development server**:
    ```bash
    yarn dev
    ```
 
-3. **Open your browser**:
+4. **Open your browser**:
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### Full Setup
@@ -53,10 +61,14 @@ For complete setup including the backend agent, see the [main project README](..
 ```
 web/
 ├── app/
+│   ├── api/
+│   │   └── waitlist/
+│   │       └── route.ts     # Waitlist API endpoint
 │   ├── globals.css          # Global styles and Tailwind configuration
 │   ├── layout.tsx           # Root layout component
 │   └── page.tsx             # Main landing page
 ├── components/
+│   ├── waitlist-section.tsx # Waitlist component
 │   └── ui/                  # shadcn/ui components
 │       ├── button.tsx
 │       ├── card.tsx
@@ -64,6 +76,7 @@ web/
 │       └── toast.tsx
 ├── lib/
 │   └── utils.ts             # Utility functions
+├── .env.local               # Environment variables (create this)
 ├── package.json
 ├── tailwind.config.js       # Tailwind configuration
 ├── tsconfig.json
@@ -93,6 +106,12 @@ web/
 - Roadmap of upcoming features
 - Status indicators (Coming Soon, In Development, Planned)
 - Card-based layout
+
+### Waitlist Section
+- Email collection for early access
+- Integration with stateless.cx waitlist API
+- Success/error handling with toast notifications
+- Beautiful gradient design with visual elements
 
 ### Call-to-Action Section
 - Gradient background
