@@ -16,7 +16,7 @@ export default function SignUpPage() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    toast({ title: "Account created", description: "You're all set. Welcome to FlowAI!" })
+    toast({ title: "Account created", description: "You're all set. Welcome to Calendefi!" })
     router.push("/")
   }
 

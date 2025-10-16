@@ -12,7 +12,7 @@ export function DashboardPreview() {
             <div className="grid h-6 w-6 place-items-center rounded-full bg-rose-500 text-white text-[10px] font-semibold">
               {"✺"}
             </div>
-            <span className="font-semibold">FlowAI</span>
+            <span className="font-semibold">Calendefi</span>
           </div>
           <div className="hidden w-72 items-center rounded-full border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground sm:flex">
             {"🔎"} <span className="ml-2">Search</span>

@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "FlowAI",
-  description: "Keep your team aligned in minutes with FlowAI.",
-    generator: 'v0.app'
+  title: "Calendefi",
+  description: "Keep your team aligned in minutes with Calendefi.",
+  generator: 'v0.app'
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

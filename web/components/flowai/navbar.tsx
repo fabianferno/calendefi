@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from 'next/image'
 
 export function Navbar() {
   return (
@@ -18,7 +19,7 @@ export function Navbar() {
       >
         <div className="flex items-center gap-2">
           <div className="grid h-7 w-7 place-items-center rounded-full bg-rose-500 text-white text-xs font-semibold">
-            {"✺"}
+            <Image src="/logo.png" alt="CalendeFi" width={28} height={28} />
           </div>
           <span className="font-semibold">CalendeFi</span>
         </div>

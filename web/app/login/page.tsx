@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    toast({ title: "Logged in", description: "Welcome back to FlowAI." })
+    toast({ title: "Logged in", description: "Welcome back to Calendefi." })
     router.push("/")
   }
 

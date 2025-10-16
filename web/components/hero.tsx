@@ -44,11 +44,11 @@ export function Hero() {
           <span role="img" aria-label="sparkle">
             🪄
           </span>{" "}
-          Team Aligned in Minutes with FlowAI
+          Team Aligned in Minutes with Calendefi
         </h1>
 
         <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-          FlowAI makes project planning effortless—assign tasks, track progress, and keep everyone in sync, all in one
+          Calendefi makes project planning effortless—assign tasks, track progress, and keep everyone in sync, all in one
           place.
         </p>
 
@@ -60,7 +60,7 @@ export function Hero() {
               "shadow-[inset_0_1px_0_rgba(255,255,255,.15)]",
             )}
           >
-            Try FlowAI for Free
+            Try Calendefi for Free
           </Button>
           <Button
             variant="outline"

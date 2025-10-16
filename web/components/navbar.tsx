@@ -19,7 +19,7 @@ export function Navbar() {
           <div className="grid h-7 w-7 place-items-center rounded-full bg-rose-500 text-white text-xs font-semibold">
             {"✺"}
           </div>
-          <span className="font-semibold">FlowAI</span>
+          <span className="font-semibold">Calendefi</span>
         </div>
 
         <ul className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
@@ -52,7 +52,7 @@ export function Navbar() {
               "shadow-[inset_0_1px_0_0_rgba(255,255,255,.15)]",
             )}
           >
-            <span className="mr-1">Try FlowAI for Free</span>
+            <span className="mr-1">Try Calendefi for Free</span>
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

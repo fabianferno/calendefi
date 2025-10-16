@@ -22,7 +22,6 @@ export default function Page() {
       <FeaturesSection />
       <HowItWorksSection />
       <PricingSection />
-      <WaitlistSection />
     </main>
   )
 }
