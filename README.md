@@ -1,4 +1,4 @@
-# CalendeFi - ETHGlobal Project Description
+# CalendeFi 
 
 <img width="1372" height="485" alt="image" src="https://github.com/user-attachments/assets/c952b459-54f1-441a-9369-a63d58e57350" />
 
