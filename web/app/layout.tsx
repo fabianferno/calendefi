@@ -1,33 +1,29 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { Toaster } from '@/components/ui/toaster'
+import type React from "react"
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import "./globals.css"
 
-const inter = Inter({ subsets: ['latin'] })
+const geistSans = Geist({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-sans",
+})
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-geist-mono",
+})
 
 export const metadata: Metadata = {
-    title: 'CalendeFi - Every Calendar Event is a Transaction',
-    description: 'With CalendeFi, every calendar event is a transaction — stake, swap, or pay — scheduled in time. Convert your Google Calendar into an autonomous blockchain wallet.',
-    keywords: 'calendar, blockchain, wallet, crypto, transactions, scheduling',
-    authors: [{ name: 'CalendeFi Team' }],
-    openGraph: {
-        title: 'CalendeFi - Every Calendar Event is a Transaction',
-        description: 'Convert your Google Calendar into an autonomous blockchain wallet on EVM.',
-        type: 'website',
-    },
+  title: "FlowAI",
+  description: "Keep your team aligned in minutes with FlowAI.",
+    generator: 'v0.app'
 }
 
-export default function RootLayout({
-    children,
-}: {
-    children: React.ReactNode
-}) {
-    return (
-        <html lang="en">
-            <body className={inter.className}>
-                {children}
-                <Toaster />
-            </body>
-        </html>
-    )
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="font-sans bg-background text-foreground antialiased">{children}</body>
+    </html>
+  )
 }
